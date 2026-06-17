@@ -25,8 +25,7 @@ jobs:
           script = "\n".join([
               "set sftp:auto-confirm yes",
               "set net:max-retries 3",
-              "open sftp://{}:22".format(os.environ["SFTP_HOST"]),
-              "user {} {}".format(os.environ["SFTP_USER"], os.environ["SFTP_PASS"]),
+              "open -u {},{} sftp://{}:22".format(os.environ["SFTP_USER"], os.environ["SFTP_PASS"], os.environ["SFTP_HOST"]),
               "mirror --reverse --verbose --no-perms --exclude .git/ --exclude .github/ --exclude schema.sql ./ {}".format(os.environ["SFTP_REMOTE_DIR"]),
               "bye",
           ])
