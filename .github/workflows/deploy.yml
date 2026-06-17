@@ -15,17 +15,17 @@ jobs:
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
-          SFTP_PASS: ${{ secrets.SFTP_PASS }}
+          SSHPASS: ${{ secrets.SFTP_PASS }}
           SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR }}
         run: |
-          sudo apt-get install -y lftp
+          sudo apt-get install -y lftp sshpass
           python3 << 'PYEOF'
           import os, subprocess
 
           script = "\n".join([
-              "set sftp:auto-confirm yes",
+              "set sftp:connect-program 'sshpass -e ssh -a -x -oStrictHostKeyChecking=no'",
               "set net:max-retries 3",
-              "open -u {},{} sftp://{}:22".format(os.environ["SFTP_USER"], os.environ["SFTP_PASS"], os.environ["SFTP_HOST"]),
+              "open sftp://{}@{}:22".format(os.environ["SFTP_USER"], os.environ["SFTP_HOST"]),
               "mirror --reverse --verbose --no-perms --exclude .git/ --exclude .github/ --exclude schema.sql ./ {}".format(os.environ["SFTP_REMOTE_DIR"]),
               "bye",
           ])
