@@ -17,7 +17,7 @@ jobs:
           lftp -e "
             set sftp:auto-confirm yes;
             set net:max-retries 3;
-            open sftp://${{ secrets.SFTP_USER }}:${{ secrets.SFTP_PASS }}@${{ secrets.SFTP_HOST }};
+            open sftp://${{ secrets.SFTP_USER }}:${{ secrets.SFTP_PASS }}@${{ secrets.SFTP_HOST }}:22;
             mirror --reverse --verbose --no-perms --exclude .git/ --exclude .github/ --exclude schema.sql ./ ${{ secrets.SFTP_REMOTE_DIR }};
             bye
           "
