@@ -12,12 +12,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Deploy via SFTP
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASS: ${{ secrets.SFTP_PASS }}
+          SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR }}
         run: |
           sudo apt-get install -y lftp
-          lftp -e "
+          lftp -u "$SFTP_USER,$SFTP_PASS" "sftp://$SFTP_HOST:22" -e "
             set sftp:auto-confirm yes;
             set net:max-retries 3;
-            open sftp://${{ secrets.SFTP_USER }}:${{ secrets.SFTP_PASS }}@${{ secrets.SFTP_HOST }}:22;
-            mirror --reverse --verbose --no-perms --exclude .git/ --exclude .github/ --exclude schema.sql ./ ${{ secrets.SFTP_REMOTE_DIR }};
+            mirror --reverse --verbose --no-perms --exclude .git/ --exclude .github/ --exclude schema.sql ./ $SFTP_REMOTE_DIR;
             bye
           "
