@@ -19,32 +19,68 @@ jobs:
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
-          SSHPASS: ${{ secrets.SFTP_PASS }}
+          SFTP_PASS: ${{ secrets.SFTP_PASS }}
           SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR }}
         run: |
           set -euo pipefail
 
           sudo apt-get update -qq
-          sudo apt-get install -y sshpass
+          sudo apt-get install -y expect
 
           : "${SFTP_HOST:?Missing SFTP_HOST secret}"
           : "${SFTP_USER:?Missing SFTP_USER secret}"
-          : "${SSHPASS:?Missing SFTP_PASS secret}"
+          : "${SFTP_PASS:?Missing SFTP_PASS secret}"
           : "${SFTP_REMOTE_DIR:?Missing SFTP_REMOTE_DIR secret}"
 
-          cat > /tmp/deploy.sftp <<EOF
-          cd ${SFTP_REMOTE_DIR}
-          -mkdir clc
-          put clc/index.html clc/index.html
-          EOF
+          cat > /tmp/deploy.expect <<'EOF'
+          set timeout 60
 
-          sshpass -e sftp \
-            -oBatchMode=no \
+          spawn sftp \
             -oStrictHostKeyChecking=no \
             -oUserKnownHostsFile=/dev/null \
-            -oPubkeyAuthentication=no \
-            -oPreferredAuthentications=keyboard-interactive,password \
-            -oNumberOfPasswordPrompts=1 \
             -P 22 \
-            -b /tmp/deploy.sftp \
-            "$SFTP_USER@$SFTP_HOST"
+            "$env(SFTP_USER)@$env(SFTP_HOST)"
+
+          expect {
+            -re "(?i)password:" {
+              send -- "$env(SFTP_PASS)\r"
+            }
+            timeout {
+              puts "Timed out waiting for password prompt"
+              exit 1
+            }
+            eof {
+              puts "SFTP exited before password prompt"
+              exit 1
+            }
+          }
+
+          expect {
+            "sftp>" {}
+            timeout {
+              puts "Timed out waiting for SFTP prompt after login"
+              exit 1
+            }
+            eof {
+              puts "SFTP login failed"
+              exit 1
+            }
+          }
+
+          send -- "cd $env(SFTP_REMOTE_DIR)\r"
+          expect "sftp>"
+
+          send -- "mkdir clc\r"
+          expect "sftp>"
+
+          send -- "put clc/index.html clc/index.html\r"
+          expect "sftp>"
+
+          send -- "chmod 644 clc/index.html\r"
+          expect "sftp>"
+
+          send -- "bye\r"
+          expect eof
+          EOF
+
+          expect /tmp/deploy.expect
