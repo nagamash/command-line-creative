@@ -1,4 +1,4 @@
-create table public.news_items (
+create table if not exists public.news_items (
   id uuid default gen_random_uuid() primary key,
   title text not null,
   url text not null,
@@ -13,8 +13,19 @@ create table public.news_items (
 
 alter table public.news_items enable row level security;
 
-create policy "News readable by all" on public.news_items
-  for select using (true);
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_policies
+    where schemaname = 'public'
+      and tablename = 'news_items'
+      and policyname = 'News readable by all'
+  ) then
+    create policy "News readable by all" on public.news_items
+      for select using (true);
+  end if;
+end $$;
 
 create or replace function public.trim_news_items()
 returns void as $$
