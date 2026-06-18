@@ -327,23 +327,75 @@
     .tv__meta { display: flex; align-items: center; gap: 0.875rem; font-size: 0.72rem; color: var(--txm); }
     .tv__author { display: flex; align-items: center; gap: 0.35rem; color: var(--tx); font-weight: 500; }
 
-    .post {
-      display: grid; grid-template-columns: 48px 1fr;
-      gap: 1rem; padding: 1.125rem 0;
-      border-bottom: 1px solid var(--bd);
+    .posts { border: 1px solid var(--bd); border-top: none; }
+    .post-card { border-top: 1px solid var(--bd); background: var(--bg3); }
+    [data-theme="dark"] .post-card { background: var(--bg2); }
+    .post-card__bar {
+      min-height: 30px; padding: 0.32rem 0.625rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      background: rgba(0,0,0,0.12); color: var(--tx2); border-bottom: 1px solid var(--bd);
+      font-size: 0.82rem; font-weight: 500;
     }
-    .post:last-of-type { border-bottom: none; }
-    .post__side { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding-top: 0.1rem; }
-    .post__uname {
-      font-size: 0.5rem; color: var(--txm); text-align: center;
-      writing-mode: vertical-rl; transform: rotate(180deg);
-      max-height: 56px; overflow: hidden; letter-spacing: 0.04em;
+    [data-theme="dark"] .post-card__bar { background: rgba(255,255,255,0.09); color: var(--tx2); }
+    .post-card__date {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      white-space: nowrap; min-width: 0;
     }
-    .post__body {
-      font-size: 0.9375rem; color: var(--tx2); line-height: 1.75;
-      white-space: pre-wrap; word-break: break-word; margin-bottom: 0.5rem;
+    .post-card__icon { color: #d88f2a; font-size: 0.92rem; line-height: 1; }
+    .post-card__arrow { color: var(--txm); font-weight: 700; }
+    .post-card__num { color: var(--tx); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+    .post-card__grid { display: grid; grid-template-columns: 168px 1fr; min-height: 220px; }
+    .post-card__author {
+      padding: 0.875rem 0.75rem 1rem;
+      background: rgba(0,0,0,0.04); border-right: 1px solid var(--bd);
+      min-width: 0;
     }
-    .post__ts { font-size: 0.65rem; color: var(--txl); }
+    [data-theme="dark"] .post-card__author { background: rgba(255,255,255,0.035); }
+    .post-card__name {
+      display: inline-block; max-width: 100%;
+      font-size: 0.92rem; font-weight: 800; color: var(--tx);
+      line-height: 1.2; margin-bottom: 0.35rem;
+      text-decoration: underline; text-underline-offset: 2px;
+      overflow-wrap: anywhere;
+    }
+    .post-card__role {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.76rem; color: var(--tx); margin-bottom: 0.75rem;
+    }
+    .post-card__role-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #9b111e;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
+    }
+    .post-card__role-dot--admin { background: #2f8a47; }
+    .post-card__avatar {
+      width: 112px; aspect-ratio: 1; margin-bottom: 0.75rem;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--bd); color: rgba(255,255,255,0.92);
+      font-size: 1.85rem; font-weight: 800; text-transform: uppercase;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.24);
+      overflow: hidden;
+    }
+    .post-card__stat {
+      font-size: 0.74rem; line-height: 1.45; color: var(--tx2);
+      white-space: nowrap;
+    }
+    .post-card__body {
+      padding: 1.15rem 1.25rem 1.25rem;
+      font-size: 0.98rem; color: var(--tx); line-height: 1.7;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .post-card__actions {
+      min-height: 38px; padding: 0.45rem 0.75rem;
+      display: flex; align-items: center; justify-content: flex-end;
+      border-top: 1px solid var(--bds); color: var(--txm);
+      font-size: 0.8rem; font-weight: 600;
+    }
+    .post-card__quote {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      color: var(--txm); background: none; border: none; padding: 0.1rem 0;
+      font-size: inherit; font-weight: inherit;
+    }
+    .post-card__quote:hover { color: var(--tx); }
 
     .reply-sec { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--bd); }
     .reply-sec__lbl {
@@ -601,10 +653,21 @@
       .ftable__hdr-cell:last-child { display: none; }
       .frow { grid-template-columns: 60px 1fr 48px; }
       .frow__cell:last-child { display: none; }
+      .post-card__grid { grid-template-columns: 132px 1fr; }
+      .post-card__avatar { width: 92px; }
+      .post-card__body { padding: 1rem; }
     }
     @media (max-width: 480px) {
       .wrap, .tv { padding: 0.75rem; }
-      .post { grid-template-columns: 36px 1fr; }
+      .post-card__bar { align-items: flex-start; font-size: 0.76rem; }
+      .post-card__date { white-space: normal; }
+      .post-card__grid { grid-template-columns: 1fr; }
+      .post-card__author {
+        border-right: none; border-bottom: 1px solid var(--bd);
+        display: grid; grid-template-columns: 72px 1fr; column-gap: 0.75rem;
+      }
+      .post-card__avatar { width: 72px; grid-column: 1; grid-row: 1 / span 4; margin-bottom: 0; }
+      .post-card__name, .post-card__role, .post-card__stat { grid-column: 2; }
       .ftable__hdr, .frow { grid-template-columns: 1fr 48px; }
       .ftable__hdr-cell:first-child, .frow__cell:first-child { display: none; }
     }
@@ -791,6 +854,7 @@ let S = { view:'index', search:'', authTab:'login', threadId:null, chatRoom:null
 let db = { profiles:[], threads:[], messages:{} };
 let currentUser = null;
 let newsTag = 'all';
+let quoteCache = {};
 
 // ─────────────────────────────────────────────
 // DATA LOADING
@@ -851,11 +915,38 @@ function timeAgo(ts){
   return new Date(ts).toLocaleDateString('en',{month:'short',day:'numeric'});
 }
 function ini(u){ return String(u).slice(0,2).toUpperCase(); }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function stamp(ts){
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}, ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+function dateOnly(ts){
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+}
 function getUser(id){ return db.profiles.find(p => p.id === id)||null; }
 function me(){ return currentUser; }
 function lastActivity(t){
   if(!t.replies.length) return t.timestamp;
   return Math.max(...t.replies.map(r => r.timestamp));
+}
+function userPostCount(id){
+  if (!id) return 0;
+  return db.threads.reduce((sum, t) => {
+    return sum + (t.authorId === id ? 1 : 0) + t.replies.filter(r => r.authorId === id).length;
+  }, 0);
+}
+function isAdmin(user){
+  const name = String(user?.username||'').toLowerCase();
+  return ['m4ix','admin','nagamash'].includes(name);
+}
+function avatarStyle(user){
+  const key = String(user?.username||user?.id||'guest');
+  let hash = 0;
+  for (let i=0; i<key.length; i++) hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0;
+  const hue = Math.abs(hash) % 360;
+  const hue2 = (hue + 42) % 360;
+  return `background: radial-gradient(circle at 28% 24%, hsl(${hue2} 78% 68%), transparent 0 21%), linear-gradient(135deg, hsl(${hue} 54% 30%), hsl(${hue2} 54% 42%));`;
 }
 
 const URL_RE = /(https?:\/\/[^\s]+)/g;
@@ -1117,19 +1208,50 @@ function renderThread(id){
   const C = CATS[t.category];
   const user = me();
 
-  const replies = t.replies.map(r => {
-    const ra = getUser(r.authorId);
-    return `<div class="post">
-      <div class="post__side">
-        <span class="av">${ra?ini(ra.username):'?'}</span>
-        <span class="post__uname">${ra?esc(ra.username):''}</span>
+  quoteCache = {};
+
+  function renderPost(post, number) {
+    const postUser = getUser(post.authorId);
+    const username = postUser?.username || 'Unknown';
+    const role = isAdmin(postUser) ? 'Admin' : 'Member';
+    const joined = postUser?.created_at ? dateOnly(new Date(postUser.created_at).getTime()) : '—';
+    const count = userPostCount(post.authorId);
+    const quoteId = `q${number}`;
+    quoteCache[quoteId] = { username, body: post.body };
+    return `<article class="post-card" id="post-${number}">
+      <div class="post-card__bar">
+        <div class="post-card__date">
+          <span class="post-card__icon">■</span>
+          <span>${stamp(post.timestamp)}</span>
+          <span class="post-card__arrow">→</span>
+        </div>
+        <a class="post-card__num" href="#post-${number}">#${number}</a>
       </div>
-      <div>
-        <div class="post__body">${esc(r.body)}</div>
-        <div class="post__ts">${timeAgo(r.timestamp)}</div>
+      <div class="post-card__grid">
+        <aside class="post-card__author">
+          <div class="post-card__name">${esc(username)}</div>
+          <div class="post-card__role">
+            <span>${role}</span>
+            <span class="post-card__role-dot ${role==='Admin'?'post-card__role-dot--admin':''}"></span>
+          </div>
+          <div class="post-card__avatar" style="${avatarStyle(postUser)}">${postUser?ini(username):'?'}</div>
+          <div class="post-card__stat">Joined: ${esc(joined)}</div>
+          <div class="post-card__stat">Posts: ${count}</div>
+        </aside>
+        <div>
+          <div class="post-card__body">${linkify(post.body)}</div>
+          <div class="post-card__actions">
+            <button class="post-card__quote" type="button" onclick="quotePost('${quoteId}')">Quote</button>
+          </div>
+        </div>
       </div>
-    </div>`;
-  }).join('');
+    </article>`;
+  }
+
+  const posts = [
+    renderPost({ id: t.id, body: t.body, authorId: t.authorId, timestamp: t.timestamp }, 1),
+    ...t.replies.map((r, i) => renderPost(r, i + 2)),
+  ].join('');
 
   const replyWidget = user
     ? `<form class="rform" onsubmit="submitReply(event,'${t.id}')">
@@ -1150,21 +1272,22 @@ function renderThread(id){
         <span>${t.replies.length} ${t.replies.length===1?'reply':'replies'}</span>
       </div>
     </div>
-    <div class="post">
-      <div class="post__side">
-        <span class="av">${author?ini(author.username):'?'}</span>
-        <span class="post__uname">${author?esc(author.username):''}</span>
-      </div>
-      <div>
-        <div class="post__body">${esc(t.body)}</div>
-        <div class="post__ts">${new Date(t.timestamp).toLocaleDateString('en',{year:'numeric',month:'long',day:'numeric'})}</div>
-      </div>
-    </div>
-    ${replies}
+    <div class="posts">${posts}</div>
     <div class="reply-sec">
       <div class="reply-sec__lbl">${t.replies.length} ${t.replies.length===1?'reply':'replies'}</div>
       ${replyWidget}
     </div>`;
+}
+
+function quotePost(quoteId){
+  const quote = quoteCache[quoteId];
+  if (!quote) return;
+  const input = document.getElementById('reply-body');
+  if (!input) { openAuth('login'); return; }
+  const quoted = `> ${quote.username} wrote:\n` + quote.body.split('\n').map(line => `> ${line}`).join('\n') + '\n\n';
+  input.value = input.value ? `${input.value.trim()}\n\n${quoted}` : quoted;
+  input.focus();
+  input.scrollIntoView({ behavior:'smooth', block:'center' });
 }
 
 // ─────────────────────────────────────────────
