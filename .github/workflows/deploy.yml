@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,21 +22,29 @@ jobs:
           SSHPASS: ${{ secrets.SFTP_PASS }}
           SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR }}
         run: |
-          sudo apt-get install -y lftp sshpass
-          python3 << 'PYEOF'
-          import os, subprocess
+          set -euo pipefail
 
-          script = "\n".join([
-              "set sftp:connect-program 'sshpass -e ssh -a -x -oStrictHostKeyChecking=no'",
-              "set net:max-retries 3",
-              "open sftp://{}@{}:22".format(os.environ["SFTP_USER"], os.environ["SFTP_HOST"]),
-              "mirror --reverse --verbose --no-perms --exclude .git/ --exclude .github/ --exclude schema.sql ./ {}".format(os.environ["SFTP_REMOTE_DIR"]),
-              "bye",
-          ])
+          sudo apt-get update -qq
+          sudo apt-get install -y sshpass
 
-          with open("/tmp/deploy.lftp", "w") as f:
-              f.write(script)
+          : "${SFTP_HOST:?Missing SFTP_HOST secret}"
+          : "${SFTP_USER:?Missing SFTP_USER secret}"
+          : "${SSHPASS:?Missing SFTP_PASS secret}"
+          : "${SFTP_REMOTE_DIR:?Missing SFTP_REMOTE_DIR secret}"
 
-          result = subprocess.run(["lftp", "-f", "/tmp/deploy.lftp"])
-          exit(result.returncode)
-          PYEOF
+          cat > /tmp/deploy.sftp <<EOF
+          cd ${SFTP_REMOTE_DIR}
+          -mkdir clc
+          put clc/index.html clc/index.html
+          EOF
+
+          sshpass -e sftp \
+            -oBatchMode=no \
+            -oStrictHostKeyChecking=no \
+            -oUserKnownHostsFile=/dev/null \
+            -oPubkeyAuthentication=no \
+            -oPreferredAuthentications=keyboard-interactive,password \
+            -oNumberOfPasswordPrompts=1 \
+            -P 22 \
+            -b /tmp/deploy.sftp \
+            "$SFTP_USER@$SFTP_HOST"
